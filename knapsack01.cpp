@@ -12,11 +12,11 @@ int main()
     int values[numItems] = {20, 10, 40, 50, 25};
 
     // Model Definition
-    IloEnv env;                            // environment object
-    IloModel model(env);                   // model object
-    IloNumVarArray x(env, numItems, 0, 1); // variables x_i indicating whether to include item i in the knapsack
+    IloEnv env;                           
+    IloModel model(env);                  
+    IloNumVarArray x(env, numItems, 0, 1); 
 
-    // Add objective function
+  
     IloExpr objective(env);
     for (int i = 0; i < numItems; ++i)
     {
@@ -25,7 +25,7 @@ int main()
     model.add(IloMaximize(env, objective));
     objective.end();
 
-    // Add capacity constraint
+    // constraint
     IloExpr capacityExpr(env);
     for (int i = 0; i < numItems; ++i)
     {
@@ -34,11 +34,9 @@ int main()
     model.add(capacityExpr <= capacity);
     capacityExpr.end();
 
-    // Model Solution
     IloCplex cplex(model);
     cplex.setOut(env.getNullStream()); // Suppress output
 
-    // Solve
     if (!cplex.solve())
     {
         cout << "No solution found" << endl;
@@ -46,7 +44,6 @@ int main()
         return 1;
     }
 
-    // Printing the Solution
     cout << "Objective value: " << cplex.getObjValue() << endl;
     cout << "Selected items:" << endl;
     for (int i = 0; i < numItems; ++i)
