@@ -81,15 +81,29 @@ int main() {
         }
 
         // Sub-tour constraints
+        IloRangeArray sub_tour_constraints(env);
         for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (j != 0) {
-                    model.add(u[i] + x[i][j] <= u[j] + (n - 1) * (1 - x[i][j]));
+            for (int j = 1; j < n; j++) {
+                if (i != j) {
+                    sub_tour_constraints.add(x[i][j] + x[j][i] <= 1);
                 }
             }
         }
 
-        model.add(u[0] == 0);
+        model.add(sub_tour_constraints);
+
+//        // Sub-tour constraints
+//        for (int i = 0; i < n; i++) {
+//            for (int j = 0; j < n; j++) {
+//                if (j != 0) {
+//                    model.add(u[i] + x[i][j] <= u[j] + (n - 1) * (1 - x[i][j]));
+//                }
+//            }
+//        }
+//
+//        model.add(u[0] == 0);
+
+
 
         // Solve the model
         IloCplex cplex(model);

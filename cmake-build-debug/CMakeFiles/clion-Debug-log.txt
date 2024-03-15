@@ -14,6 +14,6 @@
 -- Build type: Release
 -- Compiler version: 19.39.33521.0
 -- Fatal Error: Your compiler doesn't support c++11, please install it!
--- Configuring done (0.1s)
+-- Configuring done (0.2s)
 -- Generating done (0.0s)
 -- Build files have been written to: C:/Users/drnan/CLionProjects/TSP/cmake-build-debug

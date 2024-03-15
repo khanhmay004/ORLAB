@@ -18,7 +18,7 @@ public:
     int get_dimension() const;
     vector<pair<double, double>> get_node_coordinates() const;
     int dimension;
-    vector<std::pair<double, double>> node_coordinates;
+    vector<pair<double, double>> node_coordinates;
 };
 
 #endif // INSTANCE_H
