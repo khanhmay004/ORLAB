@@ -1,0 +1,3 @@
+C:/Users/drnan/CLionProjects/TSP/cmake-build-debug/CMakeFiles/uMV-FSTSP.dir
+C:/Users/drnan/CLionProjects/TSP/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/drnan/CLionProjects/TSP/cmake-build-debug/CMakeFiles/rebuild_cache.dir
