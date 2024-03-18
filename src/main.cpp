@@ -4,6 +4,7 @@
 #include "../include/instance.h"
 #include <ilconcert/ilosys.h>
 #include <cmath>
+#include "../include/params.h"
 
 using namespace std;
 ILOSTLBEGIN
@@ -12,24 +13,27 @@ typedef IloArray<IloNumVarArray> NumVarMatrix;
 typedef IloArray<IloExprArray> ExprMatrix;
 
 // Calculate Euclidean distance
-double euclid_distance(pair<double, double> a, pair<double, double> b) {
-    return sqrt(pow(a.first - b.first, 2) + pow(a.second - b.second, 2));
+long long euclid_distance(pair<double, double> a, pair<double, double> b) {
+    double xd = a.first - b.first;
+    double yd = a.second - b.second;
+    return sqrt(xd * xd + yd * yd);
 }
 
 int main() {
     IloEnv env;
     try {
         // Import data
+        Params param("C:\\Users\\drnan\\CLionProjects\\TSP\\data\\berlin52.tsp\\berlin52.tsp", true);
         TSP_Instance instance("C:\\Users\\drnan\\CLionProjects\\TSP\\data\\berlin52.tsp\\berlin52.tsp");
-        int n = instance.get_dimension(); //number of nodes
-        vector<pair<double, double>> nodes = instance.get_node_coordinates(); // x, y
+        int n = param.nbVertices;
 
         // Distance matrix: Khoanq cach giua cac nodes tinh theo euclid, idst[i][i] = 0
         IloNumArray2 dist(env, n);
+
         for (int i = 0; i < n; i++) {
             dist[i] = IloNumArray(env, n);
             for (int j = 0; j < n; j++) {
-                dist[i][j] = euclid_distance(nodes[i], nodes[j]);
+                dist[i][j] = param.dist_mtx[i][j];
             }
         }
 
@@ -57,6 +61,7 @@ int main() {
 
         // Constraints
 
+
         //Go-to constraint
         for (int i = 0; i < n; i++) {
             IloExpr expr(env);
@@ -81,27 +86,16 @@ int main() {
         }
 
         // Sub-tour constraints
-        IloRangeArray sub_tour_constraints(env);
+
         for (int i = 0; i < n; i++) {
-            for (int j = 1; j < n; j++) {
-                if (i != j) {
-                    sub_tour_constraints.add(x[i][j] + x[j][i] <= 1);
+            for (int j = 0; j < n; j++) {
+                if (j != 0 && i != j) {
+                    model.add(u[i] + x[i][j] <= u[j] + (n - 1) * (1 - x[i][j]));
                 }
             }
         }
 
-        model.add(sub_tour_constraints);
-
-//        // Sub-tour constraints
-//        for (int i = 0; i < n; i++) {
-//            for (int j = 0; j < n; j++) {
-//                if (j != 0) {
-//                    model.add(u[i] + x[i][j] <= u[j] + (n - 1) * (1 - x[i][j]));
-//                }
-//            }
-//        }
-//
-//        model.add(u[0] == 0);
+        model.add(u[0] == 0);
 
 
 
@@ -116,8 +110,8 @@ int main() {
         vector<int> route;
         route.push_back(0);
         int current = 0;
-        while (route.size() < n) {
-            for (int j = 0; j < n; j++) {
+        while (route.size() <= n) {
+            for (int j = 0; j <= n; j++) {
                 if (j != current && cplex.getValue(x[current][j]) > 0.5) {
                     route.push_back(j);
                     current = j;

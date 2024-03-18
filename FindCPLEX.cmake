@@ -194,7 +194,8 @@ if (CPLEX_CONCERT_FOUND AND NOT TARGET cplex-concert)
     add_library(cplex-concert STATIC IMPORTED GLOBAL
             src/instance.cpp
             src/instance.cpp
-            src/check.cpp)
+            include/params.h
+    )
     set_target_properties(cplex-concert PROPERTIES
             IMPORTED_LOCATION "${CPLEX_CONCERT_LIBRARY}"
             IMPORTED_LOCATION_DEBUG "${CPLEX_CONCERT_LIBRARY_DEBUG}"

@@ -1,4 +1,4 @@
-"C:\Program Files\JetBrains\CLion 2023.3.4\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Release "-DCMAKE_MAKE_PROGRAM=C:/Program Files/JetBrains/CLion 2023.3.4/bin/ninja/win/x64/ninja.exe" -G Ninja -S C:\Users\drnan\CLionProjects\TSP -B C:\Users\drnan\CLionProjects\TSP\cmake-build-release
+"C:\Program Files\JetBrains\CLion 2023.3.4\bin\cmake\win\x64\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Release "-DCMAKE_MAKE_PROGRAM=C:/Program Files/JetBrains/CLion 2023.3.4/bin/ninja/win/x64/ninja.exe" -G Ninja -S C:\Users\drnan\CLionProjects\TSPDJK -B C:\Users\drnan\CLionProjects\TSPDJK\cmake-build-release
 -- architecture: x64
 -- cplex_ilog_path set down in windows
 -- Found CPLEX Studio: C:/Program Files/IBM/ILOG/CPLEX_Studio2211
@@ -14,6 +14,6 @@
 -- Build type: Release
 -- Compiler version: 19.39.33521.0
 -- Fatal Error: Your compiler doesn't support c++11, please install it!
--- Configuring done (0.2s)
+-- Configuring done (0.6s)
 -- Generating done (0.0s)
--- Build files have been written to: C:/Users/drnan/CLionProjects/TSP/cmake-build-release
+-- Build files have been written to: C:/Users/drnan/CLionProjects/TSPDJK/cmake-build-release
