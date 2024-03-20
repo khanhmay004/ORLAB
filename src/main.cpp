@@ -1,33 +1,42 @@
 #include <ilcplex/ilocplex.h>
 #include <iostream>
 #include <vector>
-#include "../include/instance.h"
 #include <ilconcert/ilosys.h>
 #include <cmath>
 #include "../include/params.h"
 
-using namespace std;
-ILOSTLBEGIN
-
+ILOSTLBEGIN;
 typedef IloArray<IloNumVarArray> NumVarMatrix;
-typedef IloArray<IloExprArray> ExprMatrix;
 
-// Calculate Euclidean distance
-long long euclid_distance(pair<double, double> a, pair<double, double> b) {
-    double xd = a.first - b.first;
-    double yd = a.second - b.second;
-    return sqrt(xd * xd + yd * yd);
+// Tim tat ca cac subtour tu tour hien co: nextNode. nextNode[i] = j co nghia tham node j sau node i
+
+vector<vector<int>> findSubTours(vector<int> nextNode) {
+    int n = nextNode.size();
+    vector<int> visited(n, 0);
+    vector<vector<int>> subTours;
+    for(int i = 0; i < n; i++) {
+        if(visited[i])
+            continue;
+        int currentNode = i;
+        vector<int> currentTour;
+        do {
+            currentTour.push_back(currentNode);
+            visited[currentNode] = 1;
+            currentNode = nextNode[currentNode];
+        } while(currentNode != i);
+        subTours.push_back(currentTour);
+    }
+    return subTours;
 }
 
-int main() {
+int main(){
     IloEnv env;
-    try {
+    try{
         // Import data
         Params param("C:\\Users\\drnan\\CLionProjects\\TSP\\data\\berlin52.tsp\\berlin52.tsp", true);
-        TSP_Instance instance("C:\\Users\\drnan\\CLionProjects\\TSP\\data\\berlin52.tsp\\berlin52.tsp");
-        int n = param.nbVertices;
+        int n = param.nbVertices; //n
 
-        // Distance matrix: Khoanq cach giua cac nodes tinh theo euclid, idst[i][i] = 0
+        //Distance between each city
         IloNumArray2 dist(env, n);
 
         for (int i = 0; i < n; i++) {
@@ -36,20 +45,15 @@ int main() {
                 dist[i][j] = param.dist_mtx[i][j];
             }
         }
-
-        // Model
         IloModel model(env);
-
-        // Decision variables: binary 1, 0
+        // Decision variable
+        // x[i][j]= 1 if place j is visited immediately after i, 0 otherwise
         NumVarMatrix x(env, n);
         for (int i = 0; i < n; i++) {
             x[i] = IloNumVarArray(env, n, 0, 1, ILOINT);
         }
 
-        //Rank variable ui
-        IloNumVarArray u(env, n, 0, IloInfinity);
-
-        // Objective functions (minimize the total distance)
+        //Objective functions (minimize the total distance)
         IloExpr obj_expr(env);
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -59,10 +63,9 @@ int main() {
         IloObjective obj = IloMinimize(env, obj_expr);
         model.add(obj);
 
-        // Constraints
 
-
-        //Go-to constraint
+        // Constraints:
+        // Go-to constraint
         for (int i = 0; i < n; i++) {
             IloExpr expr(env);
             for (int j = 0; j < n; j++) {
@@ -84,26 +87,49 @@ int main() {
             model.add(expr == 1);
             expr.end();
         }
+        // Subtour-elimination constraint
 
-        // Sub-tour constraints
+        IloCplex cplex(model);
+        IloExpr expr(env);
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (j != 0 && i != j) {
-                    model.add(u[i] + x[i][j] <= u[j] + (n - 1) * (1 - x[i][j]));
+        int countCons=1; // number of constraint additions.
+        while(countCons++) {
+            if(!cplex.solve()) {
+                cout<< "Failed to optimize model with this data file!";
+                break;
+            }
+            vector<int> nextNode(n, -1); //Current found solution
+            for(int i = 0; i < n; i++) {
+                for(int j = 0; j < n; j++) {
+                    if(i != j && cplex.getValue(x[i][j]) > 0.5) {
+                        nextNode[i] = j;
+                        break;
+                    }
                 }
             }
+            //Find subtours of current solution
+            vector<vector<int>> subTours = findSubTours(nextNode);
+            // Truong hop toi uu: Chi co 1 subtour hay day chinh la subtour toi uu nhat -> break vong lap
+            if(subTours.size() == 1)
+                break;
+            //Subtour elimination for each subtour identified
+            int numOfSubTour = subTours.size();
+            for(int i = 0; i < numOfSubTour; i++) {
+                int numOfNodes = subTours[i].size();
+                for(int j = 0; j < numOfNodes; j++) {
+                    for(int k = 0; k < numOfNodes; k++) {
+                        if(subTours[i][j] != subTours[i][k]) {
+                            expr += x[subTours[i][j]][subTours[i][k]];
+                        }
+                    }
+                }
+                IloRange DFJ(env, -IloInfinity, expr, numOfNodes - 1);
+                model.add(DFJ);
+                expr.clear(); //clear cho vong lap toi
+            }
         }
-
-        model.add(u[0] == 0);
-
-
-
-        // Solve the model
-        IloCplex cplex(model);
-        cplex.solve();
-
-        // Print
+        expr.end();
+        // Print solution:
         cout << "Optimal Solution: " << cplex.getObjValue() << endl;
         cout << "Route:" << endl;
 
@@ -123,8 +149,12 @@ int main() {
             cout << i + 1 << " ";
         }
     }
-    catch (IloException& ex) {
-        cerr << "Error: " << ex << endl;
+
+    catch (IloException& e) {
+        cerr << "Conver exception caught: " << e << endl; // No solution exists
+    }
+    catch (...) {
+        cerr << "Unknown exception caught" << endl;
     }
     env.end();
     return 0;
