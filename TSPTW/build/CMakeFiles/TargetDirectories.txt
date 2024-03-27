@@ -1,0 +1,3 @@
+C:/Users/drnan/CLionProjects/TSPTW/build/CMakeFiles/uMV-FSTSP.dir
+C:/Users/drnan/CLionProjects/TSPTW/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/drnan/CLionProjects/TSPTW/build/CMakeFiles/ZERO_CHECK.dir
